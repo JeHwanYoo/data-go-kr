@@ -27,6 +27,12 @@ program
 
 program.parse(process.argv)
 
+const formatter = new Map([
+    ['application/json', vkbeautify.json],
+    ['text/xml', vkbeautify.xml],
+    ['application/xml', vkbeautify.xml],
+])
+
 /**
  *
  * @param {string} config
@@ -54,7 +60,7 @@ async function readConfigFile(config) {
 /**
  *
  * @param {object} params
- * @return {Promise<string>} encoding json
+ * @return {Promise<{contentType: string, data: string}>} encoding json
  * @throws Error
  */
 async function fetchData(params) {
@@ -88,15 +94,22 @@ async function fetchData(params) {
         throw new Error('Bad Request', {cause: [e]})
     }
 
-    const contentType = response.headers.get('Content-Type');
+    const contentType = response.headers.get('Content-Type').split(';')[0];
 
-    if (!response.ok || !contentType.startsWith('application/json')) {
-        const errorXML = await response.text()
-        console.log(errorXML)
-        throw new Error('Bad Request', {cause: [errorXML]})
+    if (!formatter.has(contentType)) {
+        throw new Error('Bad Request', {cause: [`Unsupported response format ${contentType}`]})
     }
 
-    return await response.text()
+    const data = await response.text()
+
+    if (data.startsWith('<OpenAPI_ServiceResponse>')) {
+        throw new Error('Bad Request', {cause: [data]})
+    }
+
+    return {
+        contentType,
+        data
+    }
 }
 
 /**
@@ -159,11 +172,14 @@ async function getData() {
     }
 
     let data
+    let contentType
     let retries = maxRetries
 
     while (data === undefined) {
         try {
-            data = await fetchData(params)
+            const {contentType: _contentType, data: _data} = await fetchData(params)
+            data = _data
+            contentType = _contentType
         } catch (e) {
             for (const errorMessage of e.cause) {
                 console.error(errorMessage)
@@ -177,7 +193,12 @@ async function getData() {
             console.error(`\n# Retry ${maxRetries - retries}/${maxRetries}`)
         }
     }
-    return pretty ? vkbeautify.json(data, pretty) : data
+    if (pretty) {
+        const format = formatter.get(contentType)
+        return format(data, pretty)
+    } else {
+        return data
+    }
 }
 
 const data = await getData()
