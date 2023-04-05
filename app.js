@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import {Command} from 'commander/esm.mjs'
-import * as fs from "fs/promises";
-import {createRequire} from 'module';
+import * as fs from "fs/promises"
+import {createRequire} from 'module'
+import vkbeautify from 'vkbeautify'
 
 const require = createRequire(import.meta.url)
 const packageData = require('./package.json')
@@ -20,6 +21,7 @@ program
     .option('-d, --delay <number>', '요청 실패 시 재시도 전 대기시간 (ms)', v => parseInt(v), 1000)
     .option('-n, --num-of-rows <number>', '페이지 당 불러올 행의 개수', v => parseInt(v), 10)
     .option('-p, --page-no <number>', '페이지 번호', v => parseInt(v), 1)
+    .option('--pretty <indent>', '이쁘게 출력', v => parseInt(v))
     .option('--no-num-of-rows', '기본 페이지네이션 파라미터(num-of-rows)를 사용하지 않음')
     .option('--no-page-no', '기본 페이지네이션 파라미터(page-no)를 사용하지 않음')
 
@@ -123,7 +125,7 @@ function checkAuthType(value) {
  * @return {Promise<string>}
  */
 async function getData() {
-    const {config, maxRetries, delay, numOfRows, pageNo} = program.opts()
+    const {config, maxRetries, delay, numOfRows, pageNo, pretty} = program.opts()
 
     let params
     try {
@@ -131,6 +133,7 @@ async function getData() {
 
         checkNaturalNumber(maxRetries)
         checkNaturalNumber(delay)
+        checkNaturalNumber(pretty)
         checkRequired(config, params, ['serviceKey', 'authType', 'endpoint', 'serviceName'])
         checkAuthType(params['authType'])
         if (!!numOfRows) {
@@ -174,7 +177,7 @@ async function getData() {
             console.error(`\n# Retry ${maxRetries - retries}/${maxRetries}`)
         }
     }
-    return data
+    return pretty ? vkbeautify.json(data, pretty) : data
 }
 
 const data = await getData()

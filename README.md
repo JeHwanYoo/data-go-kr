@@ -65,6 +65,7 @@ Options:
   -d, --delay <number>        요청 실패 시 재시도 전 대기시간 (ms) (default: 1000)
   -n, --num-of-rows <number>  페이지 당 불러올 행의 개수 (default: 10)
   -p, --page-no <number>      페이지 번호 (default: 1)
+  --pretty <indent>           이쁘게 출력
   --no-num-of-rows            기본 페이지네이션 파라미터(num-of-rows)를 사용하지 않음
   --no-page-no                기본 페이지네이션 파라미터(page-no)를 사용하지 않음
 ```
