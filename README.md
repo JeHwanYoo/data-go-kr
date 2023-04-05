@@ -2,7 +2,7 @@
 
 ## 개요
 
-공공데이터포털 (https://www.data.go.kr/)의 OpenAPI 를 요청하는 CLI 툴 입니다.
+[공공데이터포털](https://www.data.go.kr/) 의 OpenAPI 를 요청하는 CLI 툴 입니다.
 
 ## How to Use
 
