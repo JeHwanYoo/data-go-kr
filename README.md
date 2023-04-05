@@ -11,13 +11,13 @@
 ```
 npm install -g data-go-kr-cli
 
-data-go-kr --config <config-path>
+data-go-kr --config <config-path> --service-key <service-key>
 ```
 
 npx 사용
 
 ```
-npx data-go-kr --config <config-path>
+npx data-go-kr --config <config-path> --service-key <service-key>
 ```
 
 성공 시 표준 출력으로, 실패 시 표준 에러로 결과를 출력합니다.
@@ -30,15 +30,21 @@ npx data-go-kr --config <config-path>
 
 ```
 {
-    "serviceKey": "your serviceKey",
+    "serviceName": "service name",
+    "serviceKey": "your serviceKey(optinal)",
     "authType": "header|query",
     "endpoint": "api endpoint",
-    "serviceName": "service name",
-  // and you want...
+    // and you want...
 }
 ```
 
-`serviceKey`, `authType`, `endpoint`, `serviceName` 은 필수 값 입니다.
+`authType`, `endpoint`, `serviceName` 은 필수 값 입니다.
+
+`serviceKey` 는 `config 파일` 또는 `--service-key` 옵션을 통해 넣을 수 있습니다.
+
+`--service-key` 옵션을 사용할 경우 config 의 `serviceKey` 는 무시됩니다.
+
+보안상의 이유로 serviceKey 를 외부에서 주입하고 싶은 경우 `--service-key` 옵션을 사용하세요.
 
 그외에 다른 파라미터들은 추가로 정의하면 됩니다.
 
@@ -61,6 +67,7 @@ ex)
 ```
 Options:
   -c, --config <string>       공공데이터 API 요청 시 필요한 파라미터들의 설정 파일 경로 (required)
+  -s, --service-key <string>  서비스 키 (config 파일에 포함되지 않으면 필수 값)
   -r, --max-retries <number>  요청 실패 시 최대 재시도 회수 (default: 5)
   -d, --delay <number>        요청 실패 시 재시도 전 대기시간 (ms) (default: 1000)
   -n, --num-of-rows <number>  페이지 당 불러올 행의 개수 (default: 10)
@@ -69,6 +76,8 @@ Options:
   --no-num-of-rows            기본 페이지네이션 파라미터(num-of-rows)를 사용하지 않음
   --no-page-no                기본 페이지네이션 파라미터(page-no)를 사용하지 않음
 ```
+
+보안상의 이유로
 
 기본적으로 페이지네이션은 `numOfRows`, `pageNo` 쿼리 파라미터를 사용합니다.
 
@@ -125,10 +134,9 @@ error: maxRetries should be integer and greater than 0
 
 ```json
 {
-  "serviceKey": "<service key>",
+  "serviceName": "getCorpOutline_V2",
   "authType": "query",
   "endpoint": "http://apis.data.go.kr/1160100/service/GetCorpBasicInfoService_V2/",
-  "serviceName": "getCorpOutline_V2",
   "resultType": "json",
   "crno": "1101113892240",
   "corpNm": "메리츠자산운용"
@@ -138,7 +146,7 @@ error: maxRetries should be integer and greater than 0
 ### Command
 
 ```shell
-data-go-kr --config config.getCorpOutline_V2.json
+data-go-kr --config config.getCorpOutline_V2.json --service-key <service-key>
 ```
 
 ### Response

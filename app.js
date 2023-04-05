@@ -17,6 +17,7 @@ program
 
 program
     .requiredOption('-c, --config <string>', '공공데이터 API 요청 시 필요한 파라미터들의 설정 파일 경로 (required)')
+    .option('-s, --service-key <string>', '서비스 키 (config 파일에 포함되지 않으면 필수 값)')
     .option('-r, --max-retries <number>', '요청 실패 시 최대 재시도 회수', v => parseInt(v), 5)
     .option('-d, --delay <number>', '요청 실패 시 재시도 전 대기시간 (ms)', v => parseInt(v), 1000)
     .option('-n, --num-of-rows <number>', '페이지 당 불러올 행의 개수', v => parseInt(v), 10)
@@ -116,9 +117,9 @@ async function fetchData(params) {
  * @param {any} value
  * @throws Error
  */
-function checkNaturalNumber(value) {
+function checkNaturalNumber(keyname, value) {
     if (!Number.isInteger(value) || Number(value) <= 0) {
-        throw new Error('Bad Arguments', {cause: [`error: maxRetries should be integer and greater than 0`]})
+        throw new Error('Bad Arguments', {cause: [`error: ${keyname} should be integer and greater than 0`]})
     }
 }
 
@@ -135,56 +136,68 @@ function checkAuthType(value) {
 
 /**
  *
+ * @param {string} fromConfig
+ * @param {string} fromArgument
+ * @throws Error
+ */
+function checkServiceKey(fromConfig, fromArgument) {
+    if (!fromConfig && !fromArgument) {
+        throw new Error('Bad Arguments', {cause: [`error: service key must be defined`]})
+    }
+}
+
+/**
+ *
  * @return {Promise<string>}
  */
 async function getData() {
-    const {config, maxRetries, delay, numOfRows, pageNo, pretty} = program.opts()
+    const {config, maxRetries, delay, numOfRows, pageNo, pretty, serviceKey} = program.opts()
 
     let params
-    try {
-        params = await readConfigFile(config)
-
-        checkNaturalNumber(maxRetries)
-        checkNaturalNumber(delay)
-        checkNaturalNumber(pretty)
-        checkRequired(config, params, ['serviceKey', 'authType', 'endpoint', 'serviceName'])
-        checkAuthType(params['authType'])
-        if (!!numOfRows) {
-            checkNaturalNumber(numOfRows)
-            Object.assign(params, {
-                numOfRows
-            })
-        }
-        if (!!pageNo) {
-            checkNaturalNumber(pageNo)
-            Object.assign(params, {
-                pageNo
-            })
-        }
-    } catch (e) {
-        if (e.cause) {
-            for (const errorMessage of e.cause) {
-                console.error(errorMessage)
-            }
-        } else {
-            console.error(e)
-        }
-    }
-
     let data
     let contentType
     let retries = maxRetries
-
     while (data === undefined) {
         try {
+            params = await readConfigFile(config)
+
+            checkNaturalNumber('max-retries', maxRetries)
+            checkNaturalNumber('delay', delay)
+            pretty && checkNaturalNumber('pretty', pretty)
+            checkRequired(config, params, ['authType', 'endpoint', 'serviceName'])
+            checkAuthType(params['authType'])
+            checkServiceKey(params['serviceKey'], serviceKey)
+            if (!!numOfRows) {
+                checkNaturalNumber('num-of-rows', numOfRows)
+                Object.assign(params, {
+                    numOfRows
+                })
+            }
+            if (!!pageNo) {
+                checkNaturalNumber('page-no', pageNo)
+                Object.assign(params, {
+                    pageNo
+                })
+            }
+            if (!!serviceKey) {
+                Object.assign(params, {
+                    serviceKey
+                })
+            }
+
             const {contentType: _contentType, data: _data} = await fetchData(params)
             data = _data
             contentType = _contentType
         } catch (e) {
-            for (const errorMessage of e.cause) {
-                console.error(errorMessage)
+            if (e.cause) {
+                for (const errorMessage of e.cause) {
+                    console.error(errorMessage)
+                }
+            } else {
+                console.error(e)
             }
         }
+
         if (retries-- === 0) {
             process.exit(1)
         }
@@ -193,6 +206,7 @@ async function getData() {
             console.error(`\n# Retry ${maxRetries - retries}/${maxRetries}`)
         }
     }
+
     if (pretty) {
         const format = formatter.get(contentType)
         return format(data, pretty)
