@@ -1,4 +1,4 @@
-# data-go-kr-cli
+# data-go-kr
 
 ## 개요
 
