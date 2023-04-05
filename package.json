@@ -27,5 +27,7 @@
   },
   "bin": {
     "data-go-kr": "app.js"
-  }
+  },
+  "homepage": "https://github.com/JeHwanYoo/data-go-kr-cli",
+  "repository": "https://github.com/JeHwanYoo/data-go-kr-cli"
 }
