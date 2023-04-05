@@ -1,0 +1,31 @@
+{
+  "name": "data-go-kr-cli",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "keywords": [
+    "data.go.kr",
+    "cli"
+  ],
+  "author": {
+    "name": "JeHwanYoo",
+    "email": "yoojehwan1875@gmail.com",
+    "url": "https://jehwanyoo.net"
+  },
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "license": "MIT",
+  "description": "공공데이터포털(https://www.data.go.kr/) OpenAPI CLI 툴",
+  "dependencies": {
+    "commander": "^10.0.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-c8": "^0.29.8",
+    "vitest": "^0.29.8"
+  },
+  "bin": {
+    "data-go-kr": "app.js"
+  }
+}

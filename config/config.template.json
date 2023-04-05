@@ -1,0 +1,6 @@
+{
+  "serviceKey": "your serviceKey",
+  "authType": "header|query",
+  "endpoint": "api endpoint",
+  "serviceName": "service name"
+}
