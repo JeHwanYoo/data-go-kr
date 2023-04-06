@@ -103,12 +103,13 @@ async function fetchData(params) {
 }
 
 /**
+ * @param {string} key
  * @param {any} value
  * @throws Error
  */
-function checkNaturalNumber(keyname, value) {
+function checkNaturalNumber(key, value) {
     if (!Number.isInteger(value) || Number(value) <= 0) {
-        throw new Error('Bad Arguments', {cause: [`error: ${keyname} should be integer and greater than 0`]})
+        throw new Error('Bad Arguments', {cause: [`error: ${key} should be integer and greater than 0`]})
     }
 }
 
