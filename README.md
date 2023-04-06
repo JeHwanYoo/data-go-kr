@@ -31,50 +31,57 @@ npx data-go-kr --config <config-path> --service-key <service-key>
 ```
 {
     "serviceName": "service name",
-    "serviceKey": "your serviceKey(optinal)",
+    "serviceKey": "your serviceKey",
     "authType": "header|query",
     "endpoint": "api endpoint",
     // and you want...
 }
 ```
 
-`authType`, `endpoint`, `serviceName` 은 필수 값 입니다.
+각 서비스 별로 필요한 파라미터 정보는 그 서비스의 API Spec 을 참고해주세요.
 
-`serviceKey` 는 `config 파일` 또는 `--service-key` 옵션을 통해 넣을 수 있습니다.
+### 파라미터 우선순위
 
-`--service-key` 옵션을 사용할 경우 config 의 `serviceKey` 는 무시됩니다.
+`serviceKey`, `authType`, `endpoint`, `serviceName` 은 필수 값 입니다.
 
-보안상의 이유로 serviceKey 를 외부에서 주입하고 싶은 경우 `--service-key` 옵션을 사용하세요.
+미리 예약된 키워드는 [CLI Option](#cli-option-a-namecli-optiona) 을 이용해 덮어쓸 수 있습니다.
 
-그외에 다른 파라미터들은 추가로 정의하면 됩니다.
+우선 순위: 1. `CLI Option` 2. `Config File`
 
-ex)
+`data-go-kr --config <config-path> --service-key <service-key> --auth-type <auth-type>`
+
+만약 `--service-key`, `--auth-type` 옵션을 사용했다면 config file 에서 serviceKey, authType 이 무시됩니다.
+
+### Config File 예제
 
 ```
 {
-    ...,
-    "serviceName": "service name",
+    "serviceName": "getCorpOutline_V2",
+    "serviceKey": "your serviceKey",
+    "authType": "query",
+    "endpoint": "https://apis.data.go.kr/1160100/service/GetCorpBasicInfoService_V2/",
     "resultType": "json",
     "crno": "1101113892240",
     "corpNm": "메리츠자산운용"
 }
 ```
 
-각 서비스 별로 필요한 파라미터 정보는 그 서비스의 API Spec 을 참고해주세요.
-
-## CLI Option
+## CLI Option <a name="cli-option"></a>
 
 ```
 Options:
-  -c, --config <string>       공공데이터 API 요청 시 필요한 파라미터들의 설정 파일 경로 (required)
-  -s, --service-key <string>  서비스 키 (config 파일에 포함되지 않으면 필수 값)
-  -r, --max-retries <number>  요청 실패 시 최대 재시도 회수 (default: 5)
-  -d, --delay <number>        요청 실패 시 재시도 전 대기시간 (ms) (default: 1000)
-  -n, --num-of-rows <number>  페이지 당 불러올 행의 개수 (default: 10)
-  -p, --page-no <number>      페이지 번호 (default: 1)
-  --pretty <indent>           이쁘게 출력
-  --no-num-of-rows            기본 페이지네이션 파라미터(num-of-rows)를 사용하지 않음
-  --no-page-no                기본 페이지네이션 파라미터(page-no)를 사용하지 않음
+  -c, --config <string>        공공데이터 API 요청 시 필요한 파라미터들의 설정 파일 경로 (required)
+  -m, --service-name <string>  서비스 명
+  -s, --service-key <string>   서비스 키
+  -a, --auth-type <string>     인증 타입 (header|query)
+  -e, --endpoint <string>      엔드포인트 주소
+  -r, --max-retries <number>   요청 실패 시 최대 재시도 회수 (default: 5)
+  -d, --delay <number>         요청 실패 시 재시도 전 대기시간 (ms) (default: 1000)
+  -n, --num-of-rows <number>   페이지 당 불러올 행의 개수 (default: 10)
+  -p, --page-no <number>       페이지 번호 (default: 1)
+  --pretty <indent>            이쁘게 출력
+  --no-num-of-rows             기본 페이지네이션 파라미터(num-of-rows)를 사용하지 않음
+  --no-page-no                 기본 페이지네이션 파라미터(page-no)를 사용하지 않음
 ```
 
 보안상의 이유로
