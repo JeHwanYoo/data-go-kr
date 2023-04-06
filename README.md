@@ -9,7 +9,7 @@
 전역 설치
 
 ```
-npm install -g data-go-kr-cli
+npm install -g data-go-kr
 
 data-go-kr --config <config-path> --service-key <service-key>
 ```
